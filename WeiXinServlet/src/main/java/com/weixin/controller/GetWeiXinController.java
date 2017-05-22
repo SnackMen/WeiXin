@@ -1,8 +1,10 @@
 package com.weixin.controller;
 
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import com.weixin.util.WeixinUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +13,7 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Created by laowang on 2017/5/21.
@@ -64,7 +67,61 @@ public class GetWeiXinController {
         }
     }
 
-
+    @RequestMapping(value = "/request")
+    public void replayTextMessage(HttpServletRequest request, HttpServletResponse response){
+        Map<String, String> map = null;
+        //从工具类获取解析后的xml'
+        try{
+            map = WeixinUtils.reradWeixinXml(request);
+        } catch (DocumentException e) {
+            logger.error("读取XML失败： "+e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            logger.error("获取输入流失败: "+e);
+            e.printStackTrace();
+        }
+        //获取发送方账号
+        String fromUserName = map.get("FromUserName");
+        //接收方账号（开发者微信号）
+        String toUserName = map.get("ToUserName");
+        //消息类型
+        String msgType = map.get("MsgType");
+        //文本内容
+        String content = map.get("Content");
+        logger.info("发送方账号:"+fromUserName+",接收方账号(开发者微信号):"+toUserName+",消息类型:"+msgType+",文本内容:"+content);
+        //回复消息
+        if(msgType.equals("text")){
+            //根据开发文档要求构造XML字符串，本文为了让流程更加清晰，直接拼接
+            //这里在开发的时候可以优化，将回复的文本内容构造成一个java类
+            //然后使用XStream(com.thoughtworks.xstream.XStream)将java类转换成XML字符串，后面将会使用这个方法。
+            //而且由于参数中没有任何特殊字符，为简单起见，没有添加<![CDATA[xxxxx]]>
+            String replyMsg = "<xml>"+
+                    "<ToUserName>"+fromUserName+"</ToUserName>"+
+                    "<FromUserName>"+toUserName+"</FromUserName>"+
+                    "<CreateTime>"+System.currentTimeMillis()/1000+"</CreateTime>"+
+                    "<MsgType>"+msgType+"</MsgType>"+
+                    "<Content>"+content+"</Content>"+
+                    "</xml>";
+            //响应消息
+            logger.info("响应消息："+replyMsg);
+            PrintWriter out = null;
+            try {
+                //设置回复内容编码方式为UTF-8，防止乱码
+                response.setCharacterEncoding("UTF-8");
+                out = response.getWriter();
+                //我们这里将用户发送的消息原样返回
+                out.print(replyMsg);
+                logger.info("==============响应成功==================");
+            } catch (IOException e) {
+                logger.error("获取输出流失败",e);
+            }finally {
+                if(out != null){
+                    out.close();
+                    out = null;
+                }
+            }
+        }
+    }
     /**
      * 将自己饿转换成十六进制字符串
      * @param mByte

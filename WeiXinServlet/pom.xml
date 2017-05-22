@@ -3,8 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>weixin.ws</groupId>
   <artifactId>weixin</artifactId>
-  <packaging>war</packaging>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>../Menu</module>
+  </modules>
   <name>weixin Maven Webapp</name>
   <url>http://maven.apache.org</url>
 
@@ -72,6 +75,13 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
+
   </dependencies>
   <build>
     <finalName>weixin</finalName>

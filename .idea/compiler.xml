@@ -6,10 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="WeiXinServlet" />
+        <module name="menu" />
+        <module name="Menu" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Menu" target="1.5" />
+      <module name="menu" target="1.5" />
       <module name="WeiXinServlet" target="1.5" />
     </bytecodeTargetLevel>
   </component>
